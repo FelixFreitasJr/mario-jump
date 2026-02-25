@@ -1,28 +1,136 @@
 const mario = document.querySelector('.mario');
 const pipe = document.querySelector('.pipe');
 const scoreValue = document.getElementById('score-value');
-const resetButton = document.querySelector('.reset');
-const jumpButton = document.querySelector('.jump-btn');
+const mainButton = document.querySelector('.main-btn');
+const infoText = document.querySelector('.info-text');
 
 const jumpSound = document.querySelector('.jump-sound');
 const gameOverSound = document.querySelector('.gameover-sound');
 
 let score = 0;
-let gameOver = false;
+let gameSpeed = 2.5;
+const minSpeed = 1;
 
-// ===== CONTROLE DE VELOCIDADE =====
-let gameSpeed = 2.5;     // começa devagar (3 segundos)
-const minSpeed = 1;    // velocidade máxima (mais difícil)
+let loop = null;
+let scoreInterval = null;
+let gameState = "start"; // start | playing | gameover
 
-// aplica velocidade inicial
-pipe.style.animationDuration = `${gameSpeed}s`;
+// ================= START GAME =================
+function startGame() {
 
+    score = 0;
+    scoreValue.textContent = 0;
+    gameSpeed = 2.5;
 
-// ===== FUNÇÃO DE PULO =====
-const jump = () => {
-    if (gameOver) return;
+    pipe.style.left = "";
+    pipe.style.right = "-80px";
+    pipe.style.animation = `pipe-animation ${gameSpeed}s infinite linear`;
 
-    // impede pulo duplo enquanto está no ar
+    mario.src = './img/mario.gif';
+    mario.style.width = '120px';
+    mario.style.marginLeft = '0';
+    mario.style.bottom = "0px";
+
+    mainButton.style.display = "none";
+    infoText.style.display = "none";
+
+    gameState = "playing";
+
+    startLoop();
+}
+
+// ================= LOOP =================
+function startLoop() {
+
+    scoreInterval = setInterval(() => {
+
+        score++;
+        scoreValue.textContent = score;
+
+        if (score % 200 === 0 && gameSpeed > minSpeed) {
+
+            gameSpeed -= 0.15;
+            if (gameSpeed < minSpeed) gameSpeed = minSpeed;
+
+            pipe.style.animationDuration = `${gameSpeed}s`;
+        }
+
+    }, 100);
+
+    loop = setInterval(() => {
+
+        const pipePosition = pipe.offsetLeft;
+        const marioPosition =
+            +window.getComputedStyle(mario).bottom.replace('px', '');
+
+        if (pipePosition <= 120 && pipePosition > 0 && marioPosition < 100) {
+
+            triggerGameOver();
+
+        }
+
+    }, 10);
+}
+
+// ================= GAME OVER =================
+function triggerGameOver() {
+
+    gameState = "gameover";
+
+    clearInterval(loop);
+    clearInterval(scoreInterval);
+
+    const pipePosition = pipe.offsetLeft;
+    pipe.style.animation = "none";
+    pipe.style.left = `${pipePosition}px`;
+    pipe.style.right = "auto";
+
+    const marioPosition =
+        +window.getComputedStyle(mario).bottom.replace('px', '');
+
+    mario.style.animation = "none";
+    mario.style.bottom = `${marioPosition}px`;
+
+    mario.src = './img/game-over.png';
+    mario.style.width = '75px';
+    mario.style.marginLeft = '50px';
+
+    gameOverSound.play();
+
+    mainButton.textContent = "Reiniciar";
+    mainButton.style.display = "inline-block";
+}
+
+// ================= RESTART =================
+function restartGame() {
+
+    clearInterval(loop);
+    clearInterval(scoreInterval);
+
+    pipe.style.animation = "none";
+    pipe.style.left = "";
+    pipe.style.right = "-80px";
+
+    mario.src = './img/mario.gif';
+    mario.style.width = '120px';
+    mario.style.marginLeft = '0';
+    mario.style.bottom = "0px";
+
+    score = 0;
+    scoreValue.textContent = 0;
+
+    mainButton.textContent = "Iniciar";
+    mainButton.style.display = "inline-block";
+
+    infoText.style.display = "block";
+
+    gameState = "start";
+}
+
+// ================= JUMP =================
+function jump() {
+
+    if (gameState !== "playing") return;
     if (mario.classList.contains('jump')) return;
 
     mario.classList.add('jump');
@@ -33,77 +141,44 @@ const jump = () => {
     setTimeout(() => {
         mario.classList.remove('jump');
     }, 500);
-};
+}
 
-// teclado (desktop)
+// ================= EVENTS =================
+
+// teclado desktop
 document.addEventListener('keydown', (e) => {
-    if (e.code === 'Space') {
+
+    // Se ainda não começou, qualquer tecla inicia
+    if (gameState === "start") {
+        startGame();
+        return;
+    }
+
+    // Se estiver jogando, só espaço pula
+    if (gameState === "playing" && e.code === "Space") {
         jump();
     }
+
 });
 
-// botão mobile
-jumpButton.addEventListener('touchstart', jump);
-jumpButton.addEventListener('click', jump);
+// botão principal
+mainButton.addEventListener('click', () => {
 
-
-// ===== CONTADOR DE PONTOS + AUMENTO DE DIFICULDADE =====
-const scoreInterval = setInterval(() => {
-
-    if (!gameOver) {
-
-        score++;
-        scoreValue.textContent = score;
-
-        // aumenta dificuldade a cada 200 pontos
-        if (score % 200 === 0 && gameSpeed > minSpeed) {
-
-            gameSpeed -= 0.15;
-
-            if (gameSpeed < minSpeed) {
-                gameSpeed = minSpeed;
-            }
-
-            pipe.style.animationDuration = `${gameSpeed}s`;
-        }
+    if (gameState === "start") {
+        startGame();
+    } else if (gameState === "gameover") {
+        restartGame();
     }
 
-}, 100);
+});
 
+// toque mobile
+document.addEventListener('touchstart', () => {
 
-// ===== LOOP PRINCIPAL DO JOGO =====
-const loop = setInterval(() => {
-
-    const pipePosition = pipe.offsetLeft;
-    const marioPosition =
-        +window.getComputedStyle(mario).bottom.replace('px', '');
-
-    if (pipePosition <= 120 && pipePosition > 0 && marioPosition < 80) {
-
-        gameOver = true;
-
-        gameOverSound.play();
-
-        pipe.style.animation = 'none';
-        pipe.style.left = `${pipePosition}px`;
-
-        mario.style.animation = 'none';
-        mario.style.bottom = `${marioPosition}px`;
-
-        mario.src = './img/game-over.png';
-        mario.style.width = '75px';
-        mario.style.marginLeft = '50px';
-
-        resetButton.classList.remove('hidden');
-
-        clearInterval(loop);
-        clearInterval(scoreInterval);
+    if (gameState === "start") {
+        startGame();
+    } else if (gameState === "playing") {
+        jump();
     }
 
-}, 10);
-
-
-// ===== RESET =====
-resetButton.addEventListener('click', () => {
-    location.reload();
 });

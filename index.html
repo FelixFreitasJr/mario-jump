@@ -3,32 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link rel="stylesheet" href="./css/style.css">
     <script src="./js/script.js" defer></script>
-    
     <title>Mario Jump</title>
 </head>
 <body>
 
-    <div class="game-container">
+<div class="game-container">
 
-        <div class="game-board">
-            <img src="./img/clouds.png" class="clouds">
-            <img src="./img/mario.gif" class="mario">
-            <img src="./img/pipe.png" class="pipe">
-        </div>
-
-        <div class="score">Tempo: <span id='score-value'>0</span></div>
-
-        <button class="reset hidden">Reiniciar</button>
-
-        <!-- Botão mobile -->
-        <button class="jump-btn">Pular</button>
-
+    <div class="game-board">
+        <img src="./img/clouds.png" class="clouds">
+        <img src="./img/mario.gif" class="mario">
+        <img src="./img/pipe.png" class="pipe">
     </div>
-    
-    <audio src="./audio/jump.mp3" class="jump-sound"></audio>
-    <audio src="./audio/gameover.mp3" class="gameover-sound"></audio>
+
+    <div class="score">
+        Tempo: <span id="score-value">0</span>
+    </div>
+
+    <div class="controls">
+        <p class="info-text">
+            Pressione qualquer tecla ou clique em Iniciar
+        </p>
+        <button class="main-btn">Iniciar</button>
+    </div>
+
+</div>
+
+<footer>
+        Desenvolvido por 
+        <a href="https://github.com/FelixFreitasJr" target="_blank">
+            Felix Freitas Júnior
+        </a>
+    </footer>
+
+<audio src="./audio/jump.mp3" class="jump-sound"></audio>
+<audio src="./audio/gameover.mp3" class="gameover-sound"></audio>
+
 </body>
 </html>

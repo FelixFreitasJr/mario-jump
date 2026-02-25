@@ -11,12 +11,24 @@
 </head>
 <body>
 
-    <div class="game-board">
+    <div class="game-container">
 
-        <img src="./imagens/mario.gif" class="mario">
-        <img src="./imagens/pipe.png" class="pipe">
+        <div class="game-board">
+            <img src="./img/clouds.png" class="clouds">
+            <img src="./img/mario.gif" class="mario">
+            <img src="./img/pipe.png" class="pipe">
+        </div>
+
+        <div class="score">Tempo: <span id='score-value'>0</span></div>
+
+        <button class="reset hidden">Reiniciar</button>
+
+        <!-- Botão mobile -->
+        <button class="jump-btn">Pular</button>
 
     </div>
     
+    <audio src="./audio/jump.mp3" class="jump-sound"></audio>
+    <audio src="./audio/gameover.mp3" class="gameover-sound"></audio>
 </body>
 </html>

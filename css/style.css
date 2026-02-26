@@ -97,7 +97,12 @@ footer a{
     .game-board{
         height: 400px;
     }
-
+    .mario{
+        width: 96px; /* 120px - 20% */
+    }
+    .pipe{
+        width: 64px; /* 80px - 20% */
+    }
     .info-text{
         display: none;
     }

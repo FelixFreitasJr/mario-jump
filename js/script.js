@@ -13,9 +13,10 @@ const minSpeed = 1;
 
 let loop = null;
 let scoreInterval = null;
+
 let gameState = "start"; // start | playing | gameover
 
-// ================= START GAME =================
+// ================= INICIAR =================
 function startGame() {
 
     score = 0;
@@ -31,10 +32,9 @@ function startGame() {
     mario.style.marginLeft = '0';
     mario.style.bottom = "0px";
 
-    mainButton.style.display = "none";
-    infoText.style.display = "none";
-
     gameState = "playing";
+
+    updateButton();
 
     startLoop();
 }
@@ -63,17 +63,17 @@ function startLoop() {
         const marioPosition =
             +window.getComputedStyle(mario).bottom.replace('px', '');
 
-        if (pipePosition <= 120 && pipePosition > 0 && marioPosition < 100) {
+        let collisionLimit = window.innerWidth <= 850? 80:100;
 
-            triggerGameOver();
-
+        if (pipePosition <= collisionLimit && pipePosition > 0 && marioPosition < 100) {
+            gameOver();
         }
 
     }, 10);
 }
 
 // ================= GAME OVER =================
-function triggerGameOver() {
+function gameOver() {
 
     gameState = "gameover";
 
@@ -88,7 +88,6 @@ function triggerGameOver() {
     const marioPosition =
         +window.getComputedStyle(mario).bottom.replace('px', '');
 
-    mario.style.animation = "none";
     mario.style.bottom = `${marioPosition}px`;
 
     mario.src = './img/game-over.png';
@@ -97,11 +96,10 @@ function triggerGameOver() {
 
     gameOverSound.play();
 
-    mainButton.textContent = "Reiniciar";
-    mainButton.style.display = "inline-block";
+    updateButton();
 }
 
-// ================= RESTART =================
+// ================= REINICIAR =================
 function restartGame() {
 
     clearInterval(loop);
@@ -119,15 +117,12 @@ function restartGame() {
     score = 0;
     scoreValue.textContent = 0;
 
-    mainButton.textContent = "Iniciar";
-    mainButton.style.display = "inline-block";
-
-    infoText.style.display = "block";
-
     gameState = "start";
+
+    updateButton();
 }
 
-// ================= JUMP =================
+// ================= PULO =================
 function jump() {
 
     if (gameState !== "playing") return;
@@ -143,42 +138,71 @@ function jump() {
     }, 500);
 }
 
-// ================= EVENTS =================
+// ================= BOTÃO DINÂMICO =================
+function updateButton() {
 
-// teclado desktop
+    if (gameState === "start") {
+        mainButton.textContent = "Iniciar";
+        mainButton.style.display = "inline-block";
+        infoText.style.visibility = "visible";
+    }
+
+    if (gameState === "playing") {
+
+        // Se for mobile mostra botão Pular
+        if (window.innerWidth <= 850) {
+            mainButton.textContent = "Pular";
+            mainButton.style.display = "inline-block";
+        } else {
+            mainButton.style.display = "none";
+        }
+
+        infoText.style.visibility = "hidden";
+    }
+
+    if (gameState === "gameover") {
+        mainButton.textContent = "Reiniciar";
+        mainButton.style.display = "inline-block";
+    }
+}
+
+// ================= EVENTOS =================
+
+// TECLADO
 document.addEventListener('keydown', (e) => {
 
-    // Se ainda não começou, qualquer tecla inicia
+    if (e.code === "Space") {
+        e.preventDefault();
+    }
+
     if (gameState === "start") {
         startGame();
         return;
     }
 
-    // Se estiver jogando, só espaço pula
     if (gameState === "playing" && e.code === "Space") {
         jump();
     }
-
 });
 
-// botão principal
+// BOTÃO PRINCIPAL
 mainButton.addEventListener('click', () => {
 
     if (gameState === "start") {
         startGame();
-    } else if (gameState === "gameover") {
-        restartGame();
+        return;
     }
 
-});
-
-// toque mobile
-document.addEventListener('touchstart', () => {
-
-    if (gameState === "start") {
-        startGame();
-    } else if (gameState === "playing") {
+    if (gameState === "playing") {
         jump();
+        return;
     }
 
+    if (gameState === "gameover") {
+        restartGame();
+        return;
+    }
 });
+
+// Atualiza botão ao carregar
+updateButton();

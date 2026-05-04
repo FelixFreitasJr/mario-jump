@@ -27,7 +27,7 @@ O objetivo é desviar dos obstáculos pulando no momento certo.
 - Botão "Pular" em telas pequenas (mobile)
 
 ## 🛠 Estrutura do Projeto
-
+```
 mario-jump/
 │
 ├── index.html
@@ -48,7 +48,7 @@ mario-jump/
 └── audio/
     ├── jump.mp3
     └── gameover.mp3
-
+```
 ## 👨‍💻 Autor
 
 Felix F Junior
